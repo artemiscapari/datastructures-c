@@ -32,27 +32,29 @@ struct config {
     int scribble;
 };
 
-static
-int parse_options(struct config *cfg, int argc, char *argv[]);
+static int parse_options(struct config *cfg, int argc, char *argv[]);
 
 #define BUF_SIZE 1024
 static char buf[BUF_SIZE];
 
+void sort()
 int main(int argc, char *argv[]) {
 
     struct config cfg;
     if (parse_options(&cfg, argc, argv) != 0)
         return 1;
 
-    // ... SOME CODE MISSING HERE ...
+    struct list *l = list_init();
 
     while (fgets(buf, BUF_SIZE, stdin)) {
-
+        printf(buf)
         // ... SOME CODE MISSING HERE ...
     }
 
     // ... SOME CODE MISSING HERE ...
-
+    for(int i = 0;i <1024;i++){
+      printf("Char is %c", buf[i]);
+    }
     return 0;
 }
 
