@@ -49,7 +49,7 @@ clean:
 
 tarball: insertion_sort_submit.tar.gz
 
-insertion_sort_submit.tar.gz: main.c list.c list.h AUTHORS Makefile
+insertion_sort_submit.tar.gz: main.c list.c list.h Makefile
 	tar -czf $@ $^
 
 check_list: check_list.o list.o

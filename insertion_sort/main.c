@@ -39,13 +39,13 @@ static int parse_options(struct config *cfg, int argc, char *argv[]);
 static char buf[BUF_SIZE];
 
 int add_to_list(struct list *l, struct config *cfg, int num) {
-  if (cfg->remove_multiple > 0) {
-    if (num % cfg->remove_multiple == 0)
-      return 0;
-  }
   if (cfg->scribble && (num == 51 || num == 69 || num == 42)) {
-    return list_add_back(l, 666);
+    num = 666;
   }
+  if (cfg->remove_multiple > 0 && num % cfg->remove_multiple == 0) {
+    return 0;
+  }
+
   return list_add_back(l, num);
 }
 
@@ -53,32 +53,34 @@ void print_list(struct list *l, struct config *cfg) {
   if (cfg->show_first > 0) {
     int counter = 0;
     for (struct node *cur = list_head(l); cur; cur = list_next(cur)) {
-      if (counter == cfg->show_first)
+      if (counter == cfg->show_first) {
         break;
+      }
       printf("%d\n", list_node_data(cur));
       counter++;
     }
-    return;
-  }
-  // Logic for normal and show_last printing is same, only beggining node is
-  // different.
-  struct node *curr = list_head(l);
-  if (cfg->show_last > 0) {
-    int counter = 0;
-    // Since we know the list length, we can use it to stop exactly at the
-    // length - N element.
-    while (list_length(l) - counter > cfg->show_last) {
-      curr = list_next(curr);
-      counter++;
+  } else {
+    // Logic for normal and show_last printing is same, only beggining node is
+    // different.
+    struct node *curr = list_head(l);
+    if (cfg->show_last > 0) {
+      int counter = 0;
+      // Since we know the list length, we can use it to stop exactly at the
+      // length - N element.
+      while (list_length(l) - counter > cfg->show_last) {
+        curr = list_next(curr);
+        counter++;
+      }
+    }
+    for (; curr; curr = list_next(curr)) {
+      printf("%d\n", list_node_data(curr));
     }
   }
-  for (; curr; curr = list_next(curr)) {
-    printf("%d\n", list_node_data(curr));
-  }
+
   if (cfg->add_sum > 0) {
     int sum = 0;
-    for (struct node *cur = list_head(l); cur; cur = list_next(cur)) {
-      sum += list_node_data(cur);
+    for (struct node *c = list_head(l); c; c = list_next(c)) {
+      sum += list_node_data(c);
     }
     printf("%d\n", sum);
   }
