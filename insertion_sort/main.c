@@ -107,18 +107,17 @@ int sort_list(struct list *l) {
       if (prev == NULL) {
         int res = list_add(l, list_node_data(curr));
         list_free_node(curr);
-        if (res == 1)
-          return res;
+        if (res == 1) return res;
       } else {
         int res = list_insert_after(l, curr, prev);
-        if (res == 1)
-          return res;
+        if (res == 1) return res;
       }
       curr = tmp;
     } else {
       curr = list_next(curr);
     }
   }
+
   return 0;
 }
 
