@@ -1,7 +1,6 @@
 #include "list.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct node {
   int data;
@@ -16,7 +15,8 @@ struct list {
 
 struct list *list_init() {
   struct list *l = malloc(sizeof(struct list));
-  if(l == NULL) return NULL;
+  if (l == NULL)
+    return NULL;
   l->length = 0;
   l->head = NULL;
   l->tail = NULL;
@@ -24,9 +24,9 @@ struct list *list_init() {
 }
 
 int list_cleanup(struct list *l) {
-  struct node* head = l->head;
-  struct node* tmp;
-  while(head != NULL){
+  struct node *head = l->head;
+  struct node *tmp;
+  while (head != NULL) {
     tmp = head;
     head = head->next;
     list_free_node(tmp);
@@ -37,7 +37,8 @@ int list_cleanup(struct list *l) {
 
 struct node *list_new_node(int num) {
   struct node *n = malloc(sizeof(struct node));
-  if(n == NULL) return NULL;
+  if (n == NULL)
+    return NULL;
   n->data = num;
   n->next = NULL;
   return n;
@@ -45,7 +46,8 @@ struct node *list_new_node(int num) {
 
 int list_add(struct list *l, int num) {
   struct node *n = list_new_node(num);
-  if(n == NULL) return 1;
+  if (n == NULL)
+    return 1;
   if (l->length == 0) {
     l->tail = n;
   }
@@ -59,7 +61,8 @@ int list_add(struct list *l, int num) {
 
 int list_add_back(struct list *l, int num) {
   struct node *n = list_new_node(num);
-  if(n == NULL) return 1;
+  if (n == NULL)
+    return 1;
   if (l->length == 0) {
     l->head = n;
   }
@@ -80,6 +83,8 @@ int list_length(struct list *l) { return l->length; }
 int list_node_data(struct node *n) { return n->data; }
 
 struct node *list_next(struct node *n) {
+  if (n == NULL)
+    return NULL;
   return n->next;
 }
 
@@ -123,7 +128,7 @@ int list_unlink_node(struct list *l, struct node *n) {
 }
 
 void list_free_node(struct node *n) {
-  if(n != NULL){
+  if (n != NULL) {
     free(n);
   }
 }
@@ -142,7 +147,7 @@ int list_insert_after(struct list *l, struct node *n, struct node *m) {
   }
   if (m->next == NULL) {
     l->tail = n;
-  } else{
+  } else {
     n->next = m->next;
   }
   m->next = n;
