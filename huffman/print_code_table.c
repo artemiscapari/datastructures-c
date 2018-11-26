@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "huffman.h"
+#include <stdio.h>
 
 void print_code_table(encoding_table_t* table) {
     for (int i = 0; i < 256; i++) {

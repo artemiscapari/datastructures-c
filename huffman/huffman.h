@@ -47,8 +47,8 @@ void free_tree(tree_t tree);
 
 typedef struct {
   // The encoding table type.
-    int code_length;
-    char code[12];
+  int code_length;
+  char* code;
 } code;
 
 // The encoding table maps characters to their encoding.
