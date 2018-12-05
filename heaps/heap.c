@@ -28,8 +28,10 @@ static struct heap *heap_init(int (*compare)(const void *, const void *)) {
   if (h == NULL)
     return NULL;
   struct array *a = array_init(10);
-  if (a == NULL)
+  if (a == NULL){
+    free(h);
     return NULL;
+  }
   h->array = a;
   h->compare = compare;
   return h;
@@ -42,7 +44,7 @@ struct heap *prioq_init(int (*compare)(const void *, const void *)) {
 long int prioq_size(struct heap *h) { return array_size(h->array); }
 
 static int heap_cleanup(struct heap *h, void free_func(void *)) {
-  if (h == NULL || h->array == NULL) {
+  if (h == NULL) {
     return 1;
   }
   array_cleanup(h->array, free_func);
