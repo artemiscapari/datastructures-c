@@ -39,7 +39,7 @@ static int compare_patient_age(const void *a, const void *b) {
   }
 }
 
-void free_patient(void* patient) {
+static void free_patient(void *patient) {
   patient_t *p = (patient_t *)patient;
   if (p != NULL) {
     if (p->name != NULL) {
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         }
         int res = prioq_insert(queue, p);
         if (res == 1) {
-          prioq_cleanup(queue, free_patient);
+          prioq_cleanup(queue, &free_patient);
           return EXIT_FAILURE;
         }
       }
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
       break;
     }
   }
-  prioq_cleanup(queue, free_patient);
+  prioq_cleanup(queue, &free_patient);
 
   return EXIT_SUCCESS;
 }
