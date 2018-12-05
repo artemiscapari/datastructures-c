@@ -33,30 +33,30 @@ static int compare_patient_name(const void *a, const void *b) {
 static int compare_patient_age(const void *a, const void *b) {
   int res = ((const patient_t *)a)->age - ((const patient_t *)b)->age;
   if (res == 0) {
-    return compare_patient_name(a,b);
+    return compare_patient_name(a, b);
   } else {
     return res;
   }
 }
 
-void free_patient(void *patient) {
+void free_patient(void* patient) {
   patient_t *p = (patient_t *)patient;
-  if(p != NULL){
-    if(p->name != NULL){
+  if (p != NULL) {
+    if (p->name != NULL) {
       free(p->name);
     }
     free(p);
   }
 }
 
-patient_t *init_patient(char* name, int age){
+patient_t *init_patient(char *name, int age) {
   patient_t *p = malloc(sizeof(patient_t));
-  if (p == NULL){
+  if (p == NULL) {
     return NULL;
   }
 
   p->name = malloc(strlen(name) + 1);
-  if (p->name == NULL){
+  if (p->name == NULL) {
     free(p);
     return NULL;
   }
@@ -87,20 +87,20 @@ int main(int argc, char *argv[]) {
       }
       if (strcmp(".\n", s) == 0) {
         patient_t *popped = (patient_t *)prioq_pop(queue);
-        if(popped != NULL) {
+        if (popped != NULL) {
           printf("%s\n", popped->name);
         }
         break;
       } else {
-        char *name = strtok(buf," ");
+        char *name = strtok(buf, " ");
         int age = atoi(strtok(NULL, " "));
         patient_t *p = init_patient(name, age);
-        if(p == NULL) {
+        if (p == NULL) {
           return EXIT_FAILURE;
         }
         int res = prioq_insert(queue, p);
-        if (res == 1){
-          prioq_cleanup(queue,free_patient);
+        if (res == 1) {
+          prioq_cleanup(queue, free_patient);
           return EXIT_FAILURE;
         }
       }

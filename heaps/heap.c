@@ -17,18 +17,24 @@ int swap(struct heap *h, int first_index, int second_index) {
   return 0;
 }
 
-int left(int index) { return index * 2 + 1; }
+int left(int index) {
+  return index * 2 + 1;
+}
 
-int right(int index) { return index * 2 + 2; }
+int right(int index) {
+  return index * 2 + 2;
+}
 
-int parent(int index) { return (index - 1) / 2; }
+int parent(int index) {
+  return (index - 1) / 2;
+}
 
 static struct heap *heap_init(int (*compare)(const void *, const void *)) {
   prioq *h = malloc(sizeof(prioq));
   if (h == NULL)
     return NULL;
   struct array *a = array_init(10);
-  if (a == NULL){
+  if (a == NULL) {
     free(h);
     return NULL;
   }
@@ -41,7 +47,9 @@ struct heap *prioq_init(int (*compare)(const void *, const void *)) {
   return heap_init(compare);
 }
 
-long int prioq_size(struct heap *h) { return array_size(h->array); }
+long int prioq_size(struct heap *h) {
+  return array_size(h->array);
+}
 
 static int heap_cleanup(struct heap *h, void free_func(void *)) {
   if (h == NULL) {
