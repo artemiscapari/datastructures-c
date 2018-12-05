@@ -49,6 +49,22 @@ void free_patient(void *patient) {
   }
 }
 
+patient_t *init_patient(char* name, int age){
+  patient_t *p = malloc(sizeof(patient_t));
+  if (p == NULL){
+    return NULL;
+  }
+
+  p->name = malloc(strlen(name) + 1);
+  if (p->name == NULL){
+    free(p);
+    return NULL;
+  }
+  strcpy(p->name, name);
+  p->age = age;
+  return p;
+}
+
 int main(int argc, char *argv[]) {
   prioq *queue;
   struct config cfg;
@@ -78,21 +94,10 @@ int main(int argc, char *argv[]) {
       } else {
         char *name = strtok(buf," ");
         int age = atoi(strtok(NULL, " "));
-
-        patient_t *p = malloc(sizeof(patient_t));
-        if (p == NULL){
-          prioq_cleanup(queue,free_patient);
+        patient_t *p = init_patient(name, age);
+        if(p == NULL) {
           return EXIT_FAILURE;
         }
-
-        p->name = malloc(strlen(name) + 1);
-        if (p->name == NULL){
-          free(p);
-          prioq_cleanup(queue, free_patient);
-          return EXIT_FAILURE;
-        }
-        strcpy(p->name, name);
-        p->age = age;
         int res = prioq_insert(queue, p);
         if (res == 1){
           prioq_cleanup(queue,free_patient);
