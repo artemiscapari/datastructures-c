@@ -8,28 +8,45 @@
  * So you can change or remove these structs to suit your needs. */
 struct tree {
     struct node *root;
+    int turbo;
 };
 
 struct node {
     int data;
     struct node *lhs;
     struct node *rhs;
-
-    // ... SOME CODE MISSING HERE ...
-
+    struct node *parent;
 };
 typedef struct node node;
 
 /* Unique id's for numbering nodes in dot format. */
 static int global_node_counter = 0;
 
+int is_leaf(node *node) {
+  return node->lhs == NULL && node->rhs == NULL ? 1 : 0;
+}
+
+node* find_proper_node(node *current, int data) {
+  if(current->data > data) {
+    return !current->lhs ? current : find_proper_node(current->lhs, data);
+  } else {
+    return !current->rhs ? current : find_proper_node(current->rhs, data);
+  }
+}
+
 /* Helper function: Allocate a new tree node and initialise it with
  * the given parameters. Return a pointer to the new node or NULL on
  * failure. */
-static node *make_node( /* .. */ ) {
-
-    // ... SOME CODE MISSING HERE ...
-
+static node *make_node(int data) {
+    node *n = malloc(sizeof (node));
+    if(n == NULL) {
+      return NULL;
+    }
+    n->lhs = NULL;
+    n->rhs = NULL;
+    n->parent = NULL;
+    n->data = data;
+    return n;
 }
 
 static int print_tree_dot_r(node *root, FILE *dotf) {
@@ -39,7 +56,7 @@ static int print_tree_dot_r(node *root, FILE *dotf) {
         fprintf(dotf, "    %d [shape=point];\n", my_id);
         return my_id;
     }
-         
+
     fprintf(dotf, "    %d [color=%s label=\"%d\"]\n",
             my_id, "black", root->data);
 
@@ -65,46 +82,112 @@ void tree_dot(struct tree *tree, char *filename) {
         print_tree_dot_r(root, dotf);
     }
     fprintf(dotf, "}\n");
+    fclose(dotf);
 }
 
 int tree_check(struct tree *tree) {
-
-    // ... SOME CODE MISSING HERE ...
-
+  return 1;
 }
 
 struct tree *tree_init(int turbo) {
-
-    // ... SOME CODE MISSING HERE ...
-
+  struct tree *t = malloc(sizeof (struct tree));
+  if(!t) {
+    return NULL;
+  }
+  t->turbo = turbo;
+  t->root = NULL;
+  return t;
 }
 
 int tree_insert(struct tree *tree, int data) {
-
-    // ... SOME CODE MISSING HERE ...
-
+  if(tree->root == NULL){
+    node *n = make_node(data);
+    if (n == NULL) {
+      return -1;
+    }
+    tree->root = n;
+    return 0;
+  } else {
+    if(tree_find(tree, data) == 1) {
+      return 1;
+    }
+    node *current = find_proper_node(tree->root, data);
+    if(!current) {
+      return -1;
+    }
+    if(current->data > data) {
+      node *new_node = make_node(data);
+      current->lhs = new_node;
+      new_node->parent = current;
+      return current->lhs == NULL ? -1 : 0;
+    } else {
+      node *new_node = make_node(data);
+      current->rhs = new_node;
+      new_node->parent = current;
+      return current->rhs == NULL ? -1 : 0;
+    }
+  }
 }
 
+node* traverse_node_r(node* root, int data) {
+  if(root->data == data) {
+    return root;
+  } else if(root->lhs != NULL && root->data > data) {
+    return traverse_node_r(root->lhs, data);
+  } else if(root->rhs != NULL && root->data < data) {
+    return traverse_node_r(root->rhs, data);
+  } else {
+    return NULL;
+  }
+}
 int tree_find(struct tree *tree, int data) {
-
-    // ... SOME CODE MISSING HERE ...
-
+  return traverse_node_r(tree->root, data) == NULL ? 0 : 1;
 }
 
 int tree_remove(struct tree *tree, int data) {
-
-    // ... SOME CODE MISSING HERE ...
-
+  node* n = traverse_node_r(tree->root, data);
+  if(n == NULL){
+    return 1;
+  } else {
+    if(is_leaf(n)){
+      if(n->parent == NULL){
+        free(n);
+      }
+      else if(n->parent->lhs != NULL && n->parent->lhs->data == data) {
+        n->parent->lhs = NULL;
+        free(n);
+      } else {
+        n->parent->rhs = NULL;
+        free(n);
+      }
+      return 0;
+    }
+  }
 }
 
 void tree_print(struct tree *tree) {
 
-    // ... SOME CODE MISSING HERE ...
+}
 
+void cleanup_tree_r(node* current) {
+  if(current == NULL){
+    return;
+  }
+  if(is_leaf(current)){
+    free(current);
+    return;
+  }
+  cleanup_tree_r(current->lhs);
+  cleanup_tree_r(current->rhs);
+
+  free(current);
 }
 
 void tree_cleanup(struct tree *tree) {
-
-    // ... SOME CODE MISSING HERE ...
-
+  if(tree != NULL) {
+    if(tree->root != NULL) {
+      cleanup_tree_r(tree->root);
+    }
+    free(tree);
+  }
 }
