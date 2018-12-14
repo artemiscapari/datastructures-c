@@ -106,7 +106,9 @@ void tree_dot(struct tree *tree, char *filename) {
   fclose(dotf);
 }
 
-int tree_check(struct tree *tree) { return 1; }
+int tree_check(struct tree *tree) {
+  return tree != NULL ? 0 : 1;
+}
 
 struct tree *tree_init(int turbo) {
   struct tree *t = malloc(sizeof(struct tree));
@@ -169,41 +171,58 @@ int tree_remove(struct tree *tree, int data) {
   /* If it is a leaf then only thing that has to be done is unlink it from
    * the parent. */
   if (is_leaf(n)) {
-    if (n->parent->lhs != NULL && n->parent->lhs->data == data) {
-      n->parent->lhs = NULL;
+    if (n->parent == NULL){
+      // If no leaf or parent then this is the root and a single node.
+      tree->root = NULL;
     } else {
-      n->parent->rhs = NULL;
+      if(n->parent->lhs != NULL && n->parent->lhs->data == data) {
+        n->parent->lhs = NULL;
+      } else if (n->parent->rhs != NULL && n->parent->rhs->data == data) {
+        n->parent->rhs = NULL;
+      }
     }
     free(n);
   } else if (n->lhs != NULL && n->rhs != NULL) {
     /* If the node is not a leaf and it has two children then find the
-     * second biggest nex to N and swap them. Then delete the swapped leaf. */
+     * second biggest next to N and swap them. Then delete the swapped leaf. */
     node *next = n->rhs;
-    while (next != NULL) {
+    while (next->lhs != NULL) {
       next = next->lhs;
     }
-    if (!is_leaf(next)) {
-      next->parent->lhs = next->rhs;
+    if(n->parent == NULL){
+      tree->root = next;
+      next->lhs = n->lhs;
+      free(n);
+    } else {
+      if(is_leaf(next)) {
+        n->data = next->data;
+      } else {
+        next->parent->lhs = next->rhs;
+        n->data = next->data;
+      }
+      free(next);
     }
-    node *tmp = next;
-    next = n;
-    n = tmp;
-    free(next);
   } else {
     /* If there is only a single child, replace the parent's respective side
      * with it */
     node *parent = n->parent;
-    if (n->lhs != NULL) {
-      parent->lhs = n->lhs;
+    if(parent == NULL) {
+        tree->root = n->rhs != NULL ? n->rhs : n->lhs;
     } else {
-      parent->rhs = n->rhs;
+      if(parent->rhs != NULL && parent->rhs->data==n->data){
+        parent->rhs = n->rhs != NULL ? n->rhs : n->lhs;
+      } else {
+        parent->lhs = n->rhs != NULL ? n->rhs : n->lhs;
+      }
     }
     free(n);
   }
   return 0;
 }
 
-void tree_print(struct tree *tree) { print_tree_r(tree->root); }
+void tree_print(struct tree *tree) {
+  print_tree_r(tree->root);
+}
 
 void cleanup_tree_r(node *current) {
   if (current == NULL) {

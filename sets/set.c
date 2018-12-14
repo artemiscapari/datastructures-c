@@ -40,6 +40,7 @@ void set_cleanup(struct set *s) {
 }
 
 void set_print(struct set *s) {
+  tree_dot(s->tree,"tree.dot");
   tree_print(s->tree);
 }
 
