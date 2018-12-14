@@ -26,6 +26,7 @@ int is_leaf(node *node) {
   return node->lhs == NULL && node->rhs == NULL ? 1 : 0;
 }
 
+/* Gets the node to which a new leaf can be added. */
 node *get_node_add(node *current, int data) {
   if (current->data > data) {
     return !current->lhs ? current : get_node_add(current->lhs, data);
@@ -171,11 +172,11 @@ int tree_remove(struct tree *tree, int data) {
   /* If it is a leaf then only thing that has to be done is unlink it from
    * the parent. */
   if (is_leaf(n)) {
-    if (n->parent == NULL){
+    if (n->parent == NULL) {
       // If no leaf or parent then this is the root and a single node.
       tree->root = NULL;
     } else {
-      if(n->parent->lhs != NULL && n->parent->lhs->data == data) {
+      if (n->parent->lhs != NULL && n->parent->lhs->data == data) {
         n->parent->lhs = NULL;
       } else if (n->parent->rhs != NULL && n->parent->rhs->data == data) {
         n->parent->rhs = NULL;
@@ -189,27 +190,25 @@ int tree_remove(struct tree *tree, int data) {
     while (next->lhs != NULL) {
       next = next->lhs;
     }
-    if(n->parent == NULL){
+    if (n->parent == NULL) {
       tree->root = next;
       next->lhs = n->lhs;
       free(n);
     } else {
-      if(is_leaf(next)) {
-        n->data = next->data;
-      } else {
+      if (!is_leaf(next)) {
         next->parent->lhs = next->rhs;
-        n->data = next->data;
       }
+      n->data = next->data;
       free(next);
     }
   } else {
     /* If there is only a single child, replace the parent's respective side
      * with it */
     node *parent = n->parent;
-    if(parent == NULL) {
-        tree->root = n->rhs != NULL ? n->rhs : n->lhs;
+    if (parent == NULL) {
+      tree->root = n->rhs != NULL ? n->rhs : n->lhs;
     } else {
-      if(parent->rhs != NULL && parent->rhs->data==n->data){
+      if (parent->rhs != NULL && parent->rhs->data == n->data) {
         parent->rhs = n->rhs != NULL ? n->rhs : n->lhs;
       } else {
         parent->lhs = n->rhs != NULL ? n->rhs : n->lhs;
