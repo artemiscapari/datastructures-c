@@ -46,12 +46,23 @@ int main(void) {
             }
         }
         switch (*command) {
-            // ... SOME CODE MISSING HERE ...
+            case '+':
+              printf("ADDING %d\n", num);
+              set_insert(s, num);
+              break;
+            case '-':
+              set_remove(s, num);
+              break;
+            case '?':
+              printf("%s: %d\n", set_find(s,num) ? "found" : "not found", num);
+              break;
+            case 'p':
+              set_print(s);
         }
     }
 
     if (set_verify(s)) { // Debug function
-        fprintf(stderr, "Set implementation failed verification!\n");
+        //fprintf(stderr, "Set implementation failed verification!\n");
     }
     free(buf);
     set_cleanup(s);

@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "tree.h"
@@ -7,15 +7,15 @@
 /* C files can be modified anywhere.
  * So you can change or remove these structs to suit your needs. */
 struct tree {
-    struct node *root;
-    int turbo;
+  struct node *root;
+  int turbo;
 };
 
 struct node {
-    int data;
-    struct node *lhs;
-    struct node *rhs;
-    struct node *parent;
+  int data;
+  struct node *lhs;
+  struct node *rhs;
+  struct node *parent;
 };
 typedef struct node node;
 
@@ -26,11 +26,11 @@ int is_leaf(node *node) {
   return node->lhs == NULL && node->rhs == NULL ? 1 : 0;
 }
 
-node* find_proper_node(node *current, int data) {
-  if(current->data > data) {
-    return !current->lhs ? current : find_proper_node(current->lhs, data);
+node *get_node_add(node *current, int data) {
+  if (current->data > data) {
+    return !current->lhs ? current : get_node_add(current->lhs, data);
   } else {
-    return !current->rhs ? current : find_proper_node(current->rhs, data);
+    return !current->rhs ? current : get_node_add(current->rhs, data);
   }
 }
 
@@ -38,60 +38,79 @@ node* find_proper_node(node *current, int data) {
  * the given parameters. Return a pointer to the new node or NULL on
  * failure. */
 static node *make_node(int data) {
-    node *n = malloc(sizeof (node));
-    if(n == NULL) {
-      return NULL;
-    }
-    n->lhs = NULL;
-    n->rhs = NULL;
-    n->parent = NULL;
-    n->data = data;
-    return n;
+  node *n = malloc(sizeof(node));
+  if (n == NULL) {
+    return NULL;
+  }
+  n->lhs = NULL;
+  n->rhs = NULL;
+  n->parent = NULL;
+  n->data = data;
+  return n;
+}
+
+node *traverse_node_r(node *root, int data) {
+  if (root->data == data) {
+    return root;
+  } else if (root->lhs != NULL && root->data > data) {
+    return traverse_node_r(root->lhs, data);
+  } else if (root->rhs != NULL && root->data < data) {
+    return traverse_node_r(root->rhs, data);
+  } else {
+    return NULL;
+  }
+}
+
+void print_tree_r(node *root) {
+  if (root == NULL) {
+    return;
+  }
+
+  print_tree_r(root->lhs);
+  printf("%d\n", root->data);
+  print_tree_r(root->rhs);
 }
 
 static int print_tree_dot_r(node *root, FILE *dotf) {
-    int left_id, right_id, my_id = global_node_counter++;
+  int left_id, right_id, my_id = global_node_counter++;
 
-    if (root == NULL) {
-        fprintf(dotf, "    %d [shape=point];\n", my_id);
-        return my_id;
-    }
-
-    fprintf(dotf, "    %d [color=%s label=\"%d\"]\n",
-            my_id, "black", root->data);
-
-    left_id = print_tree_dot_r(root->lhs, dotf);
-    fprintf(dotf, "    %d -> %d [label=\"l\"]\n", my_id, left_id);
-
-    right_id = print_tree_dot_r(root->rhs, dotf);
-    fprintf(dotf, "    %d -> %d [label=\"r\"]\n", my_id, right_id);
-
+  if (root == NULL) {
+    fprintf(dotf, "    %d [shape=point];\n", my_id);
     return my_id;
+  }
+
+  fprintf(dotf, "    %d [color=%s label=\"%d\"]\n", my_id, "black", root->data);
+
+  left_id = print_tree_dot_r(root->lhs, dotf);
+  fprintf(dotf, "    %d -> %d [label=\"l\"]\n", my_id, left_id);
+
+  right_id = print_tree_dot_r(root->rhs, dotf);
+  fprintf(dotf, "    %d -> %d [label=\"r\"]\n", my_id, right_id);
+
+  return my_id;
 }
 
 void tree_dot(struct tree *tree, char *filename) {
-    node *root = tree->root;
-    global_node_counter = 0;
-    FILE *dotf = fopen(filename, "w");
-    if (!dotf) {
-        printf("error opening file: %s\n", filename);
-        exit(1);
-    }
-    fprintf(dotf, "digraph {\n");
-    if (root) {
-        print_tree_dot_r(root, dotf);
-    }
-    fprintf(dotf, "}\n");
-    fclose(dotf);
+  node *root = tree->root;
+  global_node_counter = 0;
+  FILE *dotf = fopen(filename, "w");
+  if (!dotf) {
+    printf("error opening file: %s\n", filename);
+    exit(1);
+  }
+  fprintf(dotf, "digraph {\n");
+  if (root) {
+    print_tree_dot_r(root, dotf);
+  }
+  fprintf(dotf, "}\n");
+  fclose(dotf);
 }
 
-int tree_check(struct tree *tree) {
-  return 1;
-}
+int tree_check(struct tree *tree) { return 1; }
 
 struct tree *tree_init(int turbo) {
-  struct tree *t = malloc(sizeof (struct tree));
-  if(!t) {
+  struct tree *t = malloc(sizeof(struct tree));
+  if (!t) {
     return NULL;
   }
   t->turbo = turbo;
@@ -100,7 +119,7 @@ struct tree *tree_init(int turbo) {
 }
 
 int tree_insert(struct tree *tree, int data) {
-  if(tree->root == NULL){
+  if (tree->root == NULL) {
     node *n = make_node(data);
     if (n == NULL) {
       return -1;
@@ -108,14 +127,14 @@ int tree_insert(struct tree *tree, int data) {
     tree->root = n;
     return 0;
   } else {
-    if(tree_find(tree, data) == 1) {
+    if (tree_find(tree, data) == 1) {
       return 1;
     }
-    node *current = find_proper_node(tree->root, data);
-    if(!current) {
+    node *current = get_node_add(tree->root, data);
+    if (!current) {
       return -1;
     }
-    if(current->data > data) {
+    if (current->data > data) {
       node *new_node = make_node(data);
       current->lhs = new_node;
       new_node->parent = current;
@@ -129,51 +148,68 @@ int tree_insert(struct tree *tree, int data) {
   }
 }
 
-node* traverse_node_r(node* root, int data) {
-  if(root->data == data) {
-    return root;
-  } else if(root->lhs != NULL && root->data > data) {
-    return traverse_node_r(root->lhs, data);
-  } else if(root->rhs != NULL && root->data < data) {
-    return traverse_node_r(root->rhs, data);
-  } else {
-    return NULL;
-  }
-}
 int tree_find(struct tree *tree, int data) {
+  if (tree->root == NULL) {
+    return 0;
+  }
+
   return traverse_node_r(tree->root, data) == NULL ? 0 : 1;
 }
 
 int tree_remove(struct tree *tree, int data) {
-  node* n = traverse_node_r(tree->root, data);
-  if(n == NULL){
+  if (tree->root == NULL) {
     return 1;
-  } else {
-    if(is_leaf(n)){
-      if(n->parent == NULL){
-        free(n);
-      }
-      else if(n->parent->lhs != NULL && n->parent->lhs->data == data) {
-        n->parent->lhs = NULL;
-        free(n);
-      } else {
-        n->parent->rhs = NULL;
-        free(n);
-      }
-      return 0;
-    }
   }
+
+  node *n = traverse_node_r(tree->root, data);
+  if (n == NULL) {
+    return 1;
+  }
+
+  /* If it is a leaf then only thing that has to be done is unlink it from
+   * the parent. */
+  if (is_leaf(n)) {
+    if (n->parent->lhs != NULL && n->parent->lhs->data == data) {
+      n->parent->lhs = NULL;
+    } else {
+      n->parent->rhs = NULL;
+    }
+    free(n);
+  } else if (n->lhs != NULL && n->rhs != NULL) {
+    /* If the node is not a leaf and it has two children then find the
+     * second biggest nex to N and swap them. Then delete the swapped leaf. */
+    node *next = n->rhs;
+    while (next != NULL) {
+      next = next->lhs;
+    }
+    if (!is_leaf(next)) {
+      next->parent->lhs = next->rhs;
+    }
+    node *tmp = next;
+    next = n;
+    n = tmp;
+    free(next);
+  } else {
+    /* If there is only a single child, replace the parent's respective side
+     * with it */
+    node *parent = n->parent;
+    if (n->lhs != NULL) {
+      parent->lhs = n->lhs;
+    } else {
+      parent->rhs = n->rhs;
+    }
+    free(n);
+  }
+  return 0;
 }
 
-void tree_print(struct tree *tree) {
+void tree_print(struct tree *tree) { print_tree_r(tree->root); }
 
-}
-
-void cleanup_tree_r(node* current) {
-  if(current == NULL){
+void cleanup_tree_r(node *current) {
+  if (current == NULL) {
     return;
   }
-  if(is_leaf(current)){
+  if (is_leaf(current)) {
     free(current);
     return;
   }
@@ -184,8 +220,8 @@ void cleanup_tree_r(node* current) {
 }
 
 void tree_cleanup(struct tree *tree) {
-  if(tree != NULL) {
-    if(tree->root != NULL) {
+  if (tree != NULL) {
+    if (tree->root != NULL) {
       cleanup_tree_r(tree->root);
     }
     free(tree);
